@@ -10,8 +10,45 @@ require('./bootstrap');
 window.Vue = require('vue');
 
 import VueRouter from 'vue-router'
-import { Form, HasError, AlertError } from 'vform'
+import moment from 'moment'; 
 
+//---Start Progressbar---------
+import VueProgressBar from 'vue-progressbar'
+const options = {
+  color: 'rgb(143, 255, 199)',
+  failedColor: 'red',
+  thickness: '4px',
+  transition: {
+    speed: '0.2s',
+    opacity: '0.6s',
+    termination: 300
+  },
+  autoRevert: true,
+  location: 'top',
+  inverse: false
+}
+Vue.use(VueProgressBar, options)
+//----------------End Progressbar------
+
+//----SweetAlert
+import Swal from 'sweetalert2';
+window.Swal = Swal;
+//---------
+
+const Toast = Swal.mixin({
+  toast: true,
+  position: 'top-end',
+  showConfirmButton: false,
+  timer: 3000,
+  timerProgressBar: true,
+  onOpen: (toast) => {
+    toast.addEventListener('mouseenter', Swal.stopTimer)
+    toast.addEventListener('mouseleave', Swal.resumeTimer)
+  }
+})
+window.Toast = Toast;
+
+import { Form, HasError, AlertError } from 'vform';
 window.Form = Form;
 Vue.component(HasError.name, HasError)
 Vue.component(AlertError.name, AlertError)
@@ -28,7 +65,15 @@ const router = new VueRouter({
     mode: 'history',
     routes // short for `routes: routes`
   })
-  
+
+  Vue.filter('upText', function(value){
+    return value.charAt(0).toUpperCase() + value.slice(1)
+  })
+
+  Vue.filter('miFecha', function(value){
+    //return moment(value).format("MMMM Do YYYY");
+    return moment(value).format('ll');
+  })
 
 /**
  * The following block of code may be used to automatically register your

@@ -21,15 +21,17 @@
                       <th>Nombre</th>
                       <th>Email</th>
                       <th>Tipo</th>
+                      <th>Fecha de Creación</th>
                       <th>Modificar</th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>183</td>
-                      <td>John Doe</td>
-                      <td>11-7-2014</td>
-                      <td><span class="tag tag-success">Approved</span></td>
+                    <tr v-for="user of users" :key="user.id">
+                      <td>{{ user.id}}</td>
+                      <td>{{ user.name }}</td>
+                      <td>{{ user.email }}</td>
+                      <td><span class="tag tag-success">{{ user.tipo | upText }}</span></td>
+                      <td>{{ user.created_at | miFecha }}</td>
                       <td>
                           <a href="#">
                               <i class="fa fa-edit blue"></i>
@@ -59,10 +61,11 @@
                 <span aria-hidden="true">&times;</span>
               </button>
             </div>
+            
+            <form @submit.prevent="crearUsuario">
 
             <div class="modal-body">
-
-              <div class="form-group">
+                <div class="form-group">
                 <input v-model="form.name" type="text" name="name" placeholder="Ingrese Nombre"
                   class="form-control" :class="{ 'is-invalid': form.errors.has('name') }">
                 <has-error :form="form" field="name"></has-error>
@@ -86,7 +89,7 @@
                   class="form-control" :class="{ 'is-invalid': form.errors.has('tipo') }">
                   <option value="">Seleccione Rol</option>
                   <option value="admin">Administrador</option>
-                  <option value="user">Usuario</option>
+                  <option value="usuario">Usuario</option>
                   <option value="alumno">Alumno</option>
                 </select>
                 <has-error :form="form" field="tipo"></has-error>
@@ -99,10 +102,14 @@
               </div>
 
             </div>
+
             <div class="modal-footer">
               <button type="button" class="btn btn-danger" data-dismiss="modal">Cerrar</button>
-              <button type="button" class="btn btn-primary">Crear Usuario</button>
+              <button type="submit" class="btn btn-primary">Crear Usuario</button>
             </div>
+
+          </form>
+
           </div>
         </div>
       </div>
@@ -114,6 +121,8 @@
     export default {
         data () {
           return {
+
+            users: {},
             // Create a new form instance
             form: new Form({
               name: '', 
@@ -126,8 +135,31 @@
             })
           }
         },
-        mounted() {
-            console.log('Component mounted.')
-        }
+
+        methods: {
+          
+            cargarUsuarios(){
+              this.$Progress.start()
+              axios.get("api/user").then(({ data }) => (this.users = data.data));
+              this.$Progress.finish()
+            },
+
+            crearUsuario () {
+              // Submit the form via a POST request
+              //this.$Progress.start()
+              this.form.post('/api/user');
+              $('#agregaUser').modal('hide');
+              Toast.fire({
+                icon: 'success',
+                title: 'Usuario creado satisfactoriamente'
+              })
+              //this.$Progress.finish()
+            },
+            
+        },
+
+        created() {
+            this.cargarUsuarios();
+        },
     }
 </script>
